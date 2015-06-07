@@ -49,14 +49,14 @@ def priority_loop(meth):
                 prios = tor.handle.piece_priorities()
                 misscount = 0
                 for (i,x) in enumerate(prios):
-                    if x > 0 and x < 7 and missing[i]:
+                    if x > 0 and x < 7 and not missing[i]:
                         misscount += 1
 
                 current_target = 6
-                countdown = round(misscount / 2**current_target)
+                countdown = round(misscount / 2**current_target)+1
 
                 for (i,x) in enumerate(prios):
-                    if x > 0 and x < 7:
+                    if x > 0 and x < 7 and not missing[i]:
                         if x != current_target:
                             tor.handle.piece_priority(i,current_target)
                         countdown -= 1
@@ -64,6 +64,6 @@ def priority_loop(meth):
                             current_target -= 1
                             if current_target <= 1:
                                 current_target = 1
-                            countdown = round(misscount / 2**current_target)
+                            countdown = round(misscount / 2**current_target)+1
             except ValueError:
                 continue
