@@ -1,0 +1,8 @@
+
+    [deluge.plugin.core]
+    Pieces = pieces:CorePlugin
+    [deluge.plugin.gtkui]
+    Pieces = pieces:GtkUIPlugin
+    [deluge.plugin.web]
+    Pieces = pieces:WebUIPlugin
+    

@@ -1,7 +1,7 @@
 #
-# priority_thread.py
+# webui.py
 #
-# Copyright (C) 2010 Nick Lanham <nick@afternight.org>
+# Copyright (C) 2009 Nick Lanham <nick@afternight.org>
 #
 # Basic plugin template created by:
 # Copyright (C) 2008 Martijn Voncken <mvoncken@gmail.com>
@@ -35,35 +35,15 @@
 #    but you are not obligated to do so. If you do not wish to do so, delete
 #    this exception statement from your version. If you delete this exception
 #    statement from all source files in the program, then also delete it here.
+#
 
+from deluge.log import LOG as log
 from deluge.ui.client import client
-import deluge.component as component
+from deluge import component
+from deluge.plugins.pluginbase import WebPluginBase
 
-def priority_loop(meth):
-    torrents = meth()
-    for t in torrents:
-        tor = component.get("TorrentManager").torrents[t]
-        if tor.status.state == tor.status.downloading:
-            try:
-                missing = tor.status.pieces
-                prios = tor.handle.piece_priorities()
-                misscount = 0
-                for (i,x) in enumerate(prios):
-                    if x > 0 and x < 7 and missing[i]:
-                        misscount += 1
+from common import get_resource
 
-                current_target = 6
-                countdown = round(misscount / 2**current_target)
+class WebUI(WebPluginBase):
 
-                for (i,x) in enumerate(prios):
-                    if x > 0 and x < 7:
-                        if x != current_target:
-                            tor.handle.piece_priority(i,current_target)
-                        countdown -= 1
-                        if countdown <= 0:
-                            current_target -= 1
-                            if current_target <= 1:
-                                current_target = 1
-                            countdown = round(misscount / 2**current_target)
-            except ValueError:
-                continue
+    scripts = [get_resource("pieces.js")]

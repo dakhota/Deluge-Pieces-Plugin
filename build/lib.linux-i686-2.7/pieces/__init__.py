@@ -1,7 +1,7 @@
 #
-# priority_thread.py
+# __init__.py
 #
-# Copyright (C) 2010 Nick Lanham <nick@afternight.org>
+# Copyright (C) 2009 Nick Lanham <nick@afternight.org>
 #
 # Basic plugin template created by:
 # Copyright (C) 2008 Martijn Voncken <mvoncken@gmail.com>
@@ -35,35 +35,24 @@
 #    but you are not obligated to do so. If you do not wish to do so, delete
 #    this exception statement from your version. If you delete this exception
 #    statement from all source files in the program, then also delete it here.
+#
 
-from deluge.ui.client import client
-import deluge.component as component
+from deluge.plugins.init import PluginInitBase
 
-def priority_loop(meth):
-    torrents = meth()
-    for t in torrents:
-        tor = component.get("TorrentManager").torrents[t]
-        if tor.status.state == tor.status.downloading:
-            try:
-                missing = tor.status.pieces
-                prios = tor.handle.piece_priorities()
-                misscount = 0
-                for (i,x) in enumerate(prios):
-                    if x > 0 and x < 7 and missing[i]:
-                        misscount += 1
+class CorePlugin(PluginInitBase):
+    def __init__(self, plugin_name):
+        from core import Core as _plugin_cls
+        self._plugin_cls = _plugin_cls
+        super(CorePlugin, self).__init__(plugin_name)
 
-                current_target = 6
-                countdown = round(misscount / 2**current_target)
+class GtkUIPlugin(PluginInitBase):
+    def __init__(self, plugin_name):
+        from gtkui import GtkUI as _plugin_cls
+        self._plugin_cls = _plugin_cls
+        super(GtkUIPlugin, self).__init__(plugin_name)
 
-                for (i,x) in enumerate(prios):
-                    if x > 0 and x < 7:
-                        if x != current_target:
-                            tor.handle.piece_priority(i,current_target)
-                        countdown -= 1
-                        if countdown <= 0:
-                            current_target -= 1
-                            if current_target <= 1:
-                                current_target = 1
-                            countdown = round(misscount / 2**current_target)
-            except ValueError:
-                continue
+class WebUIPlugin(PluginInitBase):
+    def __init__(self, plugin_name):
+        from webui import WebUI as _plugin_cls
+        self._plugin_cls = _plugin_cls
+        super(WebUIPlugin, self).__init__(plugin_name)
